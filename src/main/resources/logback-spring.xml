@@ -9,7 +9,7 @@
 
   <property name="CONSOLE_LOG_PATTERN" value="${FILE_LOG_PATTERN}"/>
 
-  <property name="LOG_FILE" value="/var/log/${appName}"/>
+<!--  <property name="LOG_FILE" value="/var/log/${appName}"/>
 
   <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE">
     <encoder>
@@ -24,7 +24,7 @@
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <maxFileSize>50MB</maxFileSize>
     </triggeringPolicy>
-  </appender>
+  </appender>-->
 
   <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
     <encoder>

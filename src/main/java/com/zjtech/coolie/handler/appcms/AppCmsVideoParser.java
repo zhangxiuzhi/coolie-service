@@ -32,12 +32,12 @@ public class AppCmsVideoParser {
     if (!StringUtils.isEmpty(vendors)) {
       if (vendors.contains("$$$")) {
         vendorList = Stream.of(vendors)
-            .flatMap(val -> Arrays.stream(val.split("$$$"))).map(val -> {
-              VideoVendorDto vendorDto = new VideoVendorDto();
-              vendorDto.setName(val);
-              vendorDto.setDisplayName(null);
-              return vendorDto;
-            }).collect(Collectors.toList());
+           .flatMap(val -> Arrays.stream(val.split("$$$"))).map(val -> {
+             VideoVendorDto vendorDto = new VideoVendorDto();
+//             vendorDto.setName(val);
+//             vendorDto.setDisplayName(null);
+             return vendorDto;
+           }).collect(Collectors.toList());
       }
     }
 
