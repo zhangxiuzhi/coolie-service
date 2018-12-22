@@ -1,0 +1,23 @@
+server:
+  port: ${server_port:5806}
+
+spring:
+  application:
+    name: collie-service
+#  profiles:
+#    include: mongodb
+
+canal:
+  client:
+    instances:
+      example:
+        clusterEnabled: false
+        host: localhost
+        port: 11111
+
+
+# Set log level
+logging:
+  level:
+    root: INFO
+    org.springframework.data.mongodb: WARN
