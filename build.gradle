@@ -60,7 +60,8 @@ repositories {
 dependencies {
 
   compile libs."canal-client"
-//  compile libs.'spring-boot-starter-webflux'
+  compile libs.'spring-boot-starter-webflux'
+  compile libs.'spring-boot-starter-data-jpa'
 //    compile libs.'spring-boot-starter-cache'
   compile libs.'spring-boot-starter-aop'
 //  compile libs.'spring-boot-starter-data-mongodb-reactive'
@@ -68,6 +69,7 @@ dependencies {
 //    compile libs.'spring-boot-starter-data-redis-reactive'
 
   testCompile libs.'spring-boot-starter-test'
+  testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
 }
 
 compileJava.dependsOn(processResources)

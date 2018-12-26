@@ -1,7 +1,8 @@
-package com.zjtech.dto.cinema;
+package zjtech.dto.cinema;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VideoDto extends VideoBriefDto {
-private String language;
+  private String language;
   private String score;
   private String region;
   private String videoType;

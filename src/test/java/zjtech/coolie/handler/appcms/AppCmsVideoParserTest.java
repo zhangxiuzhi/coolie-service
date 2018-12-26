@@ -1,7 +1,6 @@
 package zjtech.coolie.handler.appcms;
 
-import com.zjtech.coolie.handler.appcms.AppCmsVideoParser;
-import com.zjtech.dto.cinema.VideoDto;
+import zjtech.dto.cinema.VideoDto;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -15,6 +14,24 @@ public class AppCmsVideoParserTest {
   private AppCmsVideoParser parser = new AppCmsVideoParser();
 
   @Test
+  public void testParseEmptyTv() {
+    var map = new HashMap<String, Object>();
+    VideoDto videoDto = parser.parse(map);
+    assertEquals(videoDto.getVendors().size(), 0);
+  }
+
+  @Test
+  public void testParseSimpleTv() {
+    var map = new HashMap<String, Object>();
+    map.put("vod_play_from", "youku");
+    map.put("vod_play_url", "第1集$http://v.youku.com");
+
+    VideoDto videoDto = parser.parse(map);
+    assertEquals(videoDto.getVendors().size(), 1);
+    assertEquals(videoDto.getVendors().get(0).getPlayList().size(), 1);
+  }
+
+  @Test
   public void testParseTv() {
     var map = new HashMap<String, Object>();
     map.put("vod_name", "咦!弄啥嘞 2016");
@@ -25,7 +42,7 @@ public class AppCmsVideoParserTest {
     map.put("vod_content", "《咦!弄啥嘞》爆笑来袭，给你带来不一样的快乐");
     map.put("vod_year", "2016");
     map.put("vod_play_from", "youku");
-    map.put("vod_play", "第1集$http://v.youku.com" +
+    map.put("vod_play_url", "第1集$http://v.youku.com" +
        "/v_show/id_XMTQ1MTkxOTM0OA==.html#第2集$http://" +
        "v.youku.com/v_show/id_XMTQ2NjQ2MTM3Ng==.html#" +
        "第3集$http://v.youku.com/v_show/id_XMTQ5OTU3NzUxNg==.html#" +
@@ -50,7 +67,7 @@ public class AppCmsVideoParserTest {
        "手的魔法下，玛格丽特爱上了史黛西英俊的同事，而史黛西则爱上了玛格丽特的未婚夫，一位风度翩翩的王子");
     map.put("vod_year", "2018");
     map.put("vod_play_from", "hkm3u8$$$131m3u8");
-    map.put("vod_play", "BD$https://cdn-1.haku99.com/hls/2018/11/28/B5HsPwiW/playlist.m3u8$$$BD中英" +
+    map.put("vod_play_url", "BD$https://cdn-1.haku99.com/hls/2018/11/28/B5HsPwiW/playlist.m3u8$$$BD中英" +
        "双字幕$https://v6.438vip.com/2018/11/20/B3YztkWFWJ7owXbo/playlist.m3u8");
 
     VideoDto videoDto = parser.parse(map);
@@ -65,7 +82,7 @@ public class AppCmsVideoParserTest {
 
     var map = new HashMap<String, Object>();
     map.put("vod_play_from", "qq$$$pptv$$$letv$$$qiyi");
-    map.put("vod_play", content);
+    map.put("vod_play_url", content);
 
     VideoDto videoDto = parser.parse(map);
     assertEquals(videoDto.getVendors().size(), 4);

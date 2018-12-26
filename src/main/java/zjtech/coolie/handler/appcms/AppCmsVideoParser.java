@@ -1,8 +1,8 @@
-package com.zjtech.coolie.handler.appcms;
+package zjtech.coolie.handler.appcms;
 
-import com.zjtech.dto.cinema.PlayInfo;
-import com.zjtech.dto.cinema.VideoDto;
-import com.zjtech.dto.cinema.VideoVendorDto;
+import zjtech.dto.cinema.PlayInfo;
+import zjtech.dto.cinema.VideoDto;
+import zjtech.dto.cinema.VideoVendorDto;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +25,7 @@ public class AppCmsVideoParser {
   public VideoDto parse(Map<String, Object> data) {
     var videoDto = new VideoDto();
 
+    videoDto.setDbId(getValue(data, "vod_id"));//name
     videoDto.setName(getValue(data, "vod_name"));//name
     videoDto.setLanguage(getValue(data, "vod_en"));//语言
     videoDto.setActors(getValue(data, "vod_actor"));//演员列表
@@ -35,7 +36,7 @@ public class AppCmsVideoParser {
 
     //parse vod_play_from : 视频提供方代称
     //format: sohu$$$letv$$$mgtv$$$pptv, youku,
-    var vendors = getValue(data, "vod_play_from");
+    String vendors = getValue(data, "vod_play_from");
     List<VideoVendorDto> vendorList = null;
     if (!StringUtils.isEmpty(vendors)) {
       if (vendors.contains("$$$")) {
@@ -62,26 +63,18 @@ public class AppCmsVideoParser {
     }
 
     //add play info
-    /*
-     * 蓝光$http://www.le.com/ptv/vplay/31470021.html$$$蓝光$https://v.qq.com/x/cover/x8e13lfnovxz2rk.html$$$蓝光$http://www.iqiyi.com/v_19rrc1bweg.html$$$蓝光$http://v.youku.com/v_show/id_XMzkwMTQ0MDAzNg==.html$$$高清$27pan94E96F9E890CDCBF$$$蓝光$https://www.mgtv.com/b/322332/4729291.html$$$BD$https://cdn-1.haku99.com/hls/2018/11/28/s4IPdm9B/playlist.m3u8$$$BD1280国语中字$https://v6.438vip.com/2018/11/07/qLNGl6oqb44luO2L/playlist.m3u8
-     */
-    var playInfo = getValue(data, "vod_play");
-    if(StringUtils.isEmpty(playInfo)){
+    var playInfo = getValue(data, "vod_play_url");
+    if (StringUtils.isEmpty(playInfo)) {
       return videoDto;
     }
 
     if (playInfo.contains(TV_SEPARATOR)) {
       //for teleplay
-      /*
-       * 第1集$http://v.qq.com/x/cover/boowq1mh1mp2owp/v00220seoak.html#第2集$http://xxx
-       */
       addPlayInfo(vendorList, playInfo, TV_SEPARATOR);
     } else {
-
       //for movie
       addPlayInfo(vendorList, playInfo, MOVIE_SEPARATOR);
     }
-
 
 
     return videoDto;
