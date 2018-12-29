@@ -3,25 +3,24 @@ package zjtech.coolie.handler.appcms;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.test.context.ContextConfiguration;
-import zjtech.CoolieServiceApplication;
-import zjtech.coolie.handler.CoolieCanalEventListener;
-import zjtech.dto.cinema.VideoDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import zjtech.CoolieServiceApplication;
+import zjtech.cinema.dto.VideoDto;
+import zjtech.coolie.handler.CoolieCanalEventListener;
 
 import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static zjtech.coolie.handler.CoolieCanalEventListener.VIDEO_COLLECTION;
+import static zjtech.coolie.common.Constant.VIDEO_COLLECTION;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = CoolieServiceApplication.class)
@@ -33,10 +32,10 @@ public class MongoVideoTest {
 
   @Test
   public void testMongo() {
-    var parser = new AppCmsVideoParser();
-    var listener = new CoolieCanalEventListener(mongoTemplate, parser);
+    AppCmsVideoParser parser = new AppCmsVideoParser();
+    CoolieCanalEventListener listener = new CoolieCanalEventListener(mongoTemplate, parser);
 
-    var map = new HashMap<String, Object>();
+    HashMap<String, Object> map = new HashMap<>();
     map.put("vod_id", "1111");
     map.put("vod_name", "咦!弄啥嘞 2016");
     map.put("vod_en", "yinongshalei2016");
@@ -54,8 +53,8 @@ public class MongoVideoTest {
        "第5集$http://v.youku.com/v_show/id_XMTU0MjYzMzA2MA==.html" +
        "#第6集$http://v.youku.com/v_show/id_XMTU2OTA2NTk4OA==.html");
 
-    var videoDto = parser.parse(map);
-    var oldName = videoDto.getName();
+    VideoDto videoDto = parser.parse(map);
+    String oldName = videoDto.getName();
 
     //insert a document
     listener.handleVideoEvent(CanalEntry.EventType.INSERT, videoDto);
@@ -74,9 +73,9 @@ public class MongoVideoTest {
     Document document = new Document();
     mongoTemplate.getConverter().write(videoDto, document);
     query = new Query(where("dbId").is(videoDto.getDbId()));
-    var videoUpdated = mongoTemplate.findAndReplace(query, document, VIDEO_COLLECTION);
+    Document videoUpdated = mongoTemplate.findAndReplace(query, document, VIDEO_COLLECTION);
 
-    var newList = getVideo(videoDto.getDbId());
+    List<VideoDto> newList = getVideo(videoDto.getDbId());
     assertEquals(list.size(), 1);
     assertNotEquals(oldName, newList.get(0).getName());
 
@@ -90,7 +89,7 @@ public class MongoVideoTest {
   }
 
   private List<VideoDto> getVideo(String dbId) {
-    var query = new Query(where("dbId").is(dbId));
+    Query query = new Query(where("dbId").is(dbId));
     return mongoTemplate.find(query, VideoDto.class, VIDEO_COLLECTION);
   }
 

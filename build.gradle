@@ -67,7 +67,7 @@ dependencies {
 //  compile libs.'spring-boot-starter-data-mongodb-reactive'
   compile libs.'spring-boot-starter-data-mongodb'
 //    compile libs.'spring-boot-starter-data-redis-reactive'
-
+  runtime libs.mysql
   testCompile libs.'spring-boot-starter-test'
   testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
 }

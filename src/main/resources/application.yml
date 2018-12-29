@@ -5,7 +5,7 @@ spring:
   application:
     name: collie-service
   profiles:
-    include: mongodb
+    include: mongodb, mysql
 
 canal:
   client:
