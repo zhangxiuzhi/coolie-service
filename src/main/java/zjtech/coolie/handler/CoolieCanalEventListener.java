@@ -9,6 +9,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import zjtech.cinema.dto.VideoTypeDto;
 import zjtech.coolie.handler.appcms.AppCmsVideoParser;
 import zjtech.cinema.dto.VideoDto;
 
@@ -51,19 +52,64 @@ public class CoolieCanalEventListener {
     handleVideoEvent(eventType, videoDto);
   }
 
+  @ListenPoint(destination = "example", schema = "movie",
+     table = {"mv1_type"}, eventType = {UPDATE, INSERT, DELETE})
+  public void onOperateVideoType(CanalEntry.EventType eventType, CanalEntry.RowData rowData) {
+    List<CanalEntry.Column> columnList = rowData.getAfterColumnsList();
+    if (eventType.equals(DELETE)) {
+      columnList = rowData.getBeforeColumnsList();
+    }
+
+    Map<String, Object> map = new HashMap<>();
+    columnList.forEach(column -> {
+      map.put(column.getName(), column.getValue());
+    });
+
+    VideoTypeDto videoTypeDto = new VideoTypeDto();
+    videoTypeDto.setName(map.get("type_name").toString());
+    videoTypeDto.setParentId(map.get("type_pid").toString());
+    videoTypeDto.setDbId(map.get("type_id").toString());
+    if (eventType.equals(INSERT)) {
+      mongoTemplate.insert(videoTypeDto, VideoTypeDto.COLLECTION_NAME);
+      log.info("inserted a videoType '{}'", videoTypeDto.getName());
+    }
+
+    if (eventType.equals(DELETE)) {
+      Query query = new Query(where("dbId").is(videoTypeDto.getDbId()));
+      DeleteResult result = mongoTemplate.remove(query, VideoTypeDto.class, VideoTypeDto.COLLECTION_NAME);
+      if (result.wasAcknowledged()) {
+        log.info("deleted a videoType '{}'", videoTypeDto.getDbId());
+      } else {
+        log.warn("Failed to deleted a videoType '{}'", videoTypeDto.getDbId());
+      }
+    }
+
+    if (eventType.equals(UPDATE)) {
+      Document document = new Document();
+      mongoTemplate.getConverter().write(videoTypeDto, document);
+      Query query = new Query(where("dbId").is(videoTypeDto.getDbId()));
+      document = mongoTemplate.findAndReplace(query, document, VideoTypeDto.COLLECTION_NAME);
+      if (document == null) {
+        log.warn("Failed to update videoType 'name={}, dbId={}': not found in mongodb",
+           videoTypeDto.getName(), videoTypeDto.getDbId());
+      }
+      log.info("updated videoType 'name={},dbId={}'", videoTypeDto.getName(), videoTypeDto.getDbId());
+    }
+  }
+
   public void handleVideoEvent(CanalEntry.EventType eventType, VideoDto videoDto) {
     if (eventType.equals(INSERT)) {
       mongoTemplate.insert(videoDto, VIDEO_COLLECTION);
-      log.info("inserted a video '{}'", videoDto.getName());
+      log.info("inserted a video '{}'", videoDto.getDbId());
     }
 
     if (eventType.equals(DELETE)) {
       Query query = new Query(where("name").is(videoDto.getName()));
       DeleteResult result = mongoTemplate.remove(query, VideoDto.class, VIDEO_COLLECTION);
       if (result.wasAcknowledged()) {
-        log.info("deleted a video '{}'", videoDto.getName());
+        log.info("deleted a video '{}'", videoDto.getDbId());
       } else {
-        log.warn("Failed to deleted a video '{}'", videoDto.getName());
+        log.warn("Failed to deleted a video '{}'", videoDto.getDbId());
       }
     }
 
