@@ -1,6 +1,8 @@
 package zjtech.coolie.handler;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.DeleteResult;
 import com.xpand.starter.canal.annotation.CanalEventListener;
 import com.xpand.starter.canal.annotation.ListenPoint;
@@ -28,6 +30,9 @@ public class CoolieCanalEventListener {
 
   private final AppCmsVideoParser parser;
 
+  @Autowired
+  private ObjectMapper objectMapper;
+
 
   @Autowired
   public CoolieCanalEventListener(MongoTemplate mongoTemplate, AppCmsVideoParser parser) {
@@ -47,9 +52,17 @@ public class CoolieCanalEventListener {
     columnList.forEach(column -> {
       map.put(column.getName(), column.getValue());
     });
-    VideoDto videoDto = parser.parse(map);
+    try {
+      VideoDto videoDto = parser.parse(map);
 
-    handleVideoEvent(eventType, videoDto);
+      handleVideoEvent(eventType, videoDto);
+    } catch (Exception e) {
+      try {
+        log.warn("failed to process video, {}", objectMapper.writeValueAsString(map));
+      } catch (JsonProcessingException e1) {
+        log.warn("json process exception", e1);
+      }
+    }
   }
 
   @ListenPoint(destination = "example", schema = "movie",

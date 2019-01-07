@@ -111,9 +111,11 @@ public abstract class AbstractBasicMessageTransponder extends AbstractMessageTra
                         Object[] args = getInvokeArgs(method, eventType, rowData);
                         method.invoke(point.getTarget(), args);
                     } catch (Exception e) {
-                        logger.error("{}: Error occurred when invoke the listener's interface! class:{}, method:{}",
+                        logger.error("{}: Error occurred when invoke the listener's interface! class:{}, method:{}, exception={}",
                                 Thread.currentThread().getName(),
-                                point.getTarget().getClass().getName(), method.getName());
+                                point.getTarget().getClass().getName(), method.getName(),
+                           e.getMessage());
+
                     }
                 }));
     }
